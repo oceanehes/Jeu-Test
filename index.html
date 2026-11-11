@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f1e8">
+  <title>Puissance 4 — Le duel des jetons</title>
+  <style>
+    :root{--ink:#20283b;--muted:#697386;--paper:#f5f1e8;--card:#fffdf8;--line:#e5dfd2;--blue:#315fd5;--blue-dark:#2249b2;--yellow:#ffd34f;--red:#f16c67;--shadow:0 14px 38px #26324b12}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -30%,#fffefa 15%,var(--paper) 66%);color:var(--ink);font:16px/1.5 ui-rounded,"Segoe UI",system-ui,sans-serif}
+    button{font:inherit;color:inherit}.app{max-width:1000px;margin:auto;padding:30px 22px 52px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:30px}.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;display:grid;place-items:center;border-radius:15px;background:#e5ebff;color:var(--blue);font-size:24px}.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:10px;font-weight:800;color:var(--muted)}h1{font-size:clamp(24px,4vw,34px);line-height:1.1;letter-spacing:-.045em;margin:2px 0 0}.new-game{border:1px solid var(--line);background:var(--card);border-radius:13px;padding:10px 15px;font-weight:750;cursor:pointer;box-shadow:0 3px 10px #26324b08}.new-game:hover{color:var(--blue);border-color:#c4d0f7}.intro{text-align:center;color:var(--muted);margin:0 auto 23px;max-width:570px}.game{display:grid;grid-template-columns:1fr;gap:18px;justify-items:center}.status-panel{width:min(100%,690px);display:flex;align-items:center;justify-content:center;gap:clamp(12px,5vw,40px);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 18px;box-shadow:var(--shadow)}.player{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:12px;color:var(--muted);font-weight:750;transition:background .18s,color .18s}.player.active{background:#f0efff;color:var(--ink)}.token{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 -2px 3px #0002,0 1px 3px #0002}.token.yellow{background:var(--yellow)}.token.red{background:var(--red)}.vs{font-size:11px;font-weight:850;letter-spacing:.12em;color:#98a0ad}.turn{min-height:26px;margin:0;text-align:center;font-weight:750;color:var(--ink)}.turn.win{color:#237a52}.turn.draw{color:#a66320}.board-wrap{width:min(100%,690px);padding:clamp(9px,2vw,17px);border-radius:24px;background:linear-gradient(145deg,#3d70ed,var(--blue) 55%,var(--blue-dark));box-shadow:0 18px 36px #294ca633, inset 0 2px 0 #ffffff66}.board{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:clamp(5px,1.3vw,10px)}.column{display:grid;grid-template-rows:repeat(6,minmax(0,1fr));gap:clamp(5px,1.3vw,10px);padding:0;border:0;background:transparent;border-radius:100px;cursor:pointer;touch-action:manipulation}.column:hover .hole.empty{background:#ffffff22}.column:focus-visible{outline:4px solid #fff;outline-offset:3px}.column:disabled{cursor:default}.hole{display:block;width:100%;aspect-ratio:1;border-radius:50%;background:#1e3678;box-shadow:inset 0 4px 8px #142555aa, inset 0 -2px 2px #ffffff12;transition:background .14s,transform .14s,box-shadow .14s}.hole.yellow{background:var(--yellow);box-shadow:inset 0 -4px 5px #d49a1390,0 2px 4px #1425554d}.hole.red{background:var(--red);box-shadow:inset 0 -4px 5px #ba433e88,0 2px 4px #1425554d}.hole.winner{outline:4px solid #fff;outline-offset:-5px;animation:glow .85s ease-in-out infinite alternate}@keyframes glow{to{filter:brightness(1.12);transform:scale(.94)}}.help{color:var(--muted);font-size:13px;text-align:center;margin:0;max-width:650px}.help kbd{font:inherit;font-weight:750;color:var(--ink);background:#ebe7dc;border-radius:5px;padding:1px 6px}.sr{position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);clip-path:inset(50%);overflow:hidden;white-space:nowrap}
+    @media(max-width:580px){.app{padding:20px 12px 35px}.top{margin-bottom:20px}.logo{width:39px;height:39px}.new-game{padding:9px 11px;font-size:13px}.intro{font-size:14px;margin-bottom:17px}.status-panel{gap:6px;padding:9px 5px}.player{gap:6px;padding:7px 6px;font-size:13px}.token{width:17px;height:17px}.vs{font-size:9px}.board-wrap{border-radius:16px}.hole.winner{outline-width:3px}.help{font-size:12px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div class="brand"><div class="logo" aria-hidden="true">▦</div><div><div class="eyebrow">Jeu pour deux</div><h1>Puissance 4</h1></div></div>
+      <button class="new-game" id="newGame" type="button">↻ Nouvelle partie</button>
+    </header>
+    <p class="intro">À tour de rôle, dépose un jeton dans la grille. Aligne quatre jetons avant ton adversaire !</p>
+    <section class="game" aria-label="Partie de Puissance 4">
+      <div class="status-panel" aria-label="Joueurs">
+        <div class="player active" id="player1"><i class="token yellow" aria-hidden="true"></i><span>Joueur 1</span></div>
+        <span class="vs" aria-hidden="true">CONTRE</span>
+        <div class="player" id="player2"><i class="token red" aria-hidden="true"></i><span>Joueur 2</span></div>
+      </div>
+      <p class="turn" id="turn" role="status" aria-live="polite">Joueur 1, à toi de jouer !</p>
+      <div class="board-wrap">
+        <div class="board" id="board" role="group" aria-label="Grille de Puissance 4, 7 colonnes et 6 rangées"></div>
+      </div>
+      <p class="help">Choisis une colonne pour y déposer ton jeton. Au clavier : <kbd>←</kbd> <kbd>→</kbd> pour te déplacer, <kbd>Entrée</kbd> pour jouer.</p>
+    </section>
+  </main>
+  <script>
+    'use strict';
+    const ROWS = 6, COLS = 7;
+    const EMPTY = 0, YELLOW = 1, RED = 2;
+    const boardEl = document.getElementById('board');
+    const turnEl = document.getElementById('turn');
+    const columns = [];
+    let grid, currentPlayer, moves, gameOver, winningCells;
+
+    function startGame() {
+      grid = Array.from({ length: ROWS }, () => Array(COLS).fill(EMPTY));
+      currentPlayer = YELLOW;
+      moves = 0;
+      gameOver = false;
+      winningCells = new Set();
+      document.getElementById('player1').classList.add('active');
+      document.getElementById('player2').classList.remove('active');
+      turnEl.className = 'turn';
+      turnEl.textContent = 'Joueur 1, à toi de jouer !';
+      renderBoard();
+      columns[3].focus();
+    }
+
+    function renderBoard(focusColumn = null) {
+      boardEl.replaceChildren();
+      columns.length = 0;
+      for (let col = 0; col < COLS; col++) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'column';
+        button.setAttribute('aria-label', `Colonne ${col + 1}${grid[0][col] !== EMPTY ? ', pleine' : ''}`);
+        button.title = `Jouer dans la colonne ${col + 1}`;
+        button.disabled = gameOver || grid[0][col] !== EMPTY;
+        button.dataset.column = String(col);
+        button.addEventListener('click', () => playColumn(col));
+        for (let row = 0; row < ROWS; row++) {
+          const hole = document.createElement('i');
+          const token = grid[row][col];
+          hole.className = 'hole' + (token === YELLOW ? ' yellow' : token === RED ? ' red' : '');
+          if (winningCells.has(`${row}-${col}`)) hole.classList.add('winner');
+          hole.setAttribute('aria-hidden', 'true');
+          button.append(hole);
+        }
+        boardEl.append(button);
+        columns.push(button);
+      }
+      if (focusColumn !== null && !gameOver) {
+        const candidates = [focusColumn, ...Array.from({ length: COLS }, (_, i) => i).sort((a, b) => Math.abs(a - focusColumn) - Math.abs(b - focusColumn))];
+        const target = candidates.find(col => !columns[col].disabled);
+        if (target !== undefined) columns[target].focus();
+      }
+    }
+
+    function lineThrough(row, col, dr, dc, player) {
+      const cells = [[row, col]];
+      for (const sign of [-1, 1]) {
+        let r = row + dr * sign, c = col + dc * sign;
+        while (r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r][c] === player) {
+          cells.push([r, c]);
+          r += dr * sign; c += dc * sign;
+        }
+      }
+      return cells;
+    }
+
+    function playColumn(col) {
+      if (gameOver || !Number.isInteger(col) || col < 0 || col >= COLS) return;
+      let row = ROWS - 1;
+      while (row >= 0 && grid[row][col] !== EMPTY) row--;
+      if (row < 0) return;
+      grid[row][col] = currentPlayer;
+      moves++;
+
+      const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+      for (const [dr, dc] of directions) {
+        const line = lineThrough(row, col, dr, dc, currentPlayer);
+        if (line.length >= 4) {
+          gameOver = true;
+          line.slice(0, 4).forEach(([r, c]) => winningCells.add(`${r}-${c}`));
+          const winnerName = currentPlayer === YELLOW ? 'Joueur 1' : 'Joueur 2';
+          turnEl.className = 'turn win';
+          turnEl.textContent = `🎉 ${winnerName} aligne quatre jetons et gagne !`;
+          document.getElementById(currentPlayer === YELLOW ? 'player1' : 'player2').classList.add('active');
+          renderBoard();
+          document.getElementById('newGame').focus();
+          return;
+        }
+      }
+
+      if (moves === ROWS * COLS) {
+        gameOver = true;
+        turnEl.className = 'turn draw';
+        turnEl.textContent = 'Match nul ! La grille est pleine.';
+        renderBoard();
+        document.getElementById('newGame').focus();
+        return;
+      }
+
+      currentPlayer = currentPlayer === YELLOW ? RED : YELLOW;
+      document.getElementById('player1').classList.toggle('active', currentPlayer === YELLOW);
+      document.getElementById('player2').classList.toggle('active', currentPlayer === RED);
+      turnEl.className = 'turn';
+      turnEl.textContent = `${currentPlayer === YELLOW ? 'Joueur 1' : 'Joueur 2'}, à toi de jouer !`;
+      renderBoard(col);
+    }
+
+    boardEl.addEventListener('keydown', event => {
+      const activeCol = Number(event.target.closest('.column')?.dataset.column);
+      if (!Number.isInteger(activeCol)) return;
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        const step = event.key === 'ArrowLeft' ? -1 : 1;
+        for (let offset = 1; offset <= COLS; offset++) {
+          const next = (activeCol + step * offset + COLS) % COLS;
+          if (!columns[next].disabled) { columns[next].focus(); break; }
+        }
+      }
+    });
+    document.getElementById('newGame').addEventListener('click', startGame);
+    startGame();
+  </script>
+</body>
+</html>
